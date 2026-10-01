@@ -14,8 +14,8 @@ type Question struct {
 }
 
 type AnswerInput struct {
-	QuestionID int   `json:"questionId"`
-	Value      int   `json:"value"`
+	QuestionID int `json:"questionId"`
+	Value      int `json:"value"`
 }
 
 type EvaluationInput struct {
@@ -38,11 +38,11 @@ type Answer struct {
 }
 
 type Subordinate struct {
-	ID                 int         `json:"id"`
-	Name               string      `json:"name"`
-	Email              string      `json:"email"`
-	PositionName       string      `json:"positionName"`
-	Depth              int         `json:"depth"`
-	CanEvaluate        bool        `json:"canEvaluateThisWeek"`
-	LatestEvaluation   *Evaluation `json:"latestEvaluation,omitempty"`
+	ID               int         `json:"id"`
+	Name             string      `json:"name"`
+	Email            string      `json:"email"`
+	PositionName     string      `json:"positionName"`
+	Depth            int         `json:"depth"`
+	CanEvaluate      bool        `json:"canEvaluateThisWeek"`
+	LatestEvaluation *Evaluation `json:"latestEvaluation,omitempty"`
 }
