@@ -5,7 +5,8 @@ INSERT INTO question (label, weight) VALUES
 ('Capacidade de Aprendizado e Desenvolvimento', 20),
 ('Resolução de Problemas e Pensamento Crítico', 15),
 ('Colaboração, Influência e Liderança', 10),
-('Visão Estratégica e Potencial de Crescimento', 10);
+('Visão Estratégica e Potencial de Crescimento', 10)
+ON CONFLICT (label) DO NOTHING;
 
 INSERT INTO employee (id, name, email, position_name) VALUES
 (1, 'Alice', 'alice@company.com', 'CEO'),
@@ -27,7 +28,8 @@ INSERT INTO employee (id, name, email, position_name) VALUES
 (17, 'Quinn', 'quinn@company.com', 'Dev'),
 (18, 'Rachel', 'rachel@company.com', 'Analyst'),
 (19, 'Samuel', 'samuel@company.com', 'Analyst'),
-(20, 'Tina', 'tina@company.com', 'HR');
+(20, 'Tina', 'tina@company.com', 'HR')
+ON CONFLICT (email) DO NOTHING;
 
 SELECT SETVAL('employee_id_seq', (SELECT MAX(id) FROM employee));
 
@@ -38,4 +40,5 @@ INSERT INTO leader_lead (leader_id, lead_id) VALUES
 (8, 10), (8, 11),
 (5, 9), (5, 13), (5, 14),
 (3, 18), (3, 19),
-(6, 15);
+(6, 15)
+ON CONFLICT (leader_id, lead_id) DO NOTHING;

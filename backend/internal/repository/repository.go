@@ -25,6 +25,16 @@ func New(pool *pgxpool.Pool) *Repository {
 }
 
 func RunMigrations(ctx context.Context, pool *pgxpool.Pool) error {
+	_, err := pool.Exec(ctx, `
+		CREATE TABLE IF NOT EXISTS schema_migrations (
+			version VARCHAR(255) PRIMARY KEY,
+			applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
+		)
+	`)
+	if err != nil {
+		return fmt.Errorf("failed to create schema_migrations table: %w", err)
+	}
+
 	entries, err := migrationFiles.ReadDir("migrations")
 	if err != nil {
 		return fmt.Errorf("failed to read migrations dir: %w", err)
@@ -40,14 +50,41 @@ func RunMigrations(ctx context.Context, pool *pgxpool.Pool) error {
 			continue
 		}
 
-		content, err := migrationFiles.ReadFile("migrations/" + entry.Name())
+		version := entry.Name()
+
+		var exists bool
+		err = pool.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM schema_migrations WHERE version = $1)`, version).Scan(&exists)
 		if err != nil {
-			return fmt.Errorf("failed to read migration file %s: %w", entry.Name(), err)
+			return fmt.Errorf("failed to check migration version %s: %w", version, err)
+		}
+		if exists {
+			continue
 		}
 
-		_, err = pool.Exec(ctx, string(content))
+		content, err := migrationFiles.ReadFile("migrations/" + version)
 		if err != nil {
-			return fmt.Errorf("failed to execute migration %s: %w", entry.Name(), err)
+			return fmt.Errorf("failed to read migration file %s: %w", version, err)
+		}
+
+		tx, err := pool.Begin(ctx)
+		if err != nil {
+			return fmt.Errorf("failed to begin tx for migration %s: %w", version, err)
+		}
+
+		_, err = tx.Exec(ctx, string(content))
+		if err != nil {
+			tx.Rollback(ctx)
+			return fmt.Errorf("failed to execute migration %s: %w", version, err)
+		}
+
+		_, err = tx.Exec(ctx, `INSERT INTO schema_migrations (version) VALUES ($1) ON CONFLICT DO NOTHING`, version)
+		if err != nil {
+			tx.Rollback(ctx)
+			return fmt.Errorf("failed to record migration %s: %w", version, err)
+		}
+
+		if err := tx.Commit(ctx); err != nil {
+			return fmt.Errorf("failed to commit migration %s: %w", version, err)
 		}
 	}
 
