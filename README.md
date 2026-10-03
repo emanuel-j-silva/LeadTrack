@@ -261,7 +261,7 @@ docker compose up --build
 - **Frontend (Web):** `http://localhost:5173`
 - **API Backend:** `http://localhost:8080` (Liveness em `GET /health`)
 
-As migrations (schema e sementes) rodam automaticamente na subida da API. Para recriar o banco do zero: `docker compose down -v`.
+As migrations (schema e seeds) rodam automaticamente na subida da API. Para recriar o banco do zero: `docker compose down -v`.
 
 ### 3. Desenvolvimento local (Sem Docker para API/Web)
 Se preferir rodar a API e o Frontend nativamente:
