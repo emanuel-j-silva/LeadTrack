@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"sort"
 	"time"
 
 	"leadtrack/backend/internal/domain"
@@ -68,6 +69,13 @@ func (s *Service) ListSubordinates(ctx context.Context, leaderID int, loc *time.
 			LatestEvaluation: latestEval,
 		})
 	}
+
+	sort.Slice(subs, func(i, j int) bool {
+		if subs[i].Depth != subs[j].Depth {
+			return subs[i].Depth < subs[j].Depth
+		}
+		return subs[i].ID < subs[j].ID
+	})
 
 	return subs, nil
 }
