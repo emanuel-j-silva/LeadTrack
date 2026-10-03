@@ -4,7 +4,7 @@ import { apiGetEmployees, getCurrentEmployeeId, setCurrentEmployeeId } from '../
 
 export const UserSwitcher: React.FC = () => {
   const queryClient = useQueryClient();
-  const currentId = getCurrentEmployeeId();
+  const [currentId, setCurrentId] = React.useState<number>(() => getCurrentEmployeeId());
 
   const { data: employees, isLoading } = useQuery({
     queryKey: ['employees'],
@@ -14,6 +14,7 @@ export const UserSwitcher: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newId = parseInt(e.target.value, 10);
     setCurrentEmployeeId(newId);
+    setCurrentId(newId);
     // Invalidate queries so everything refetches with new header
     queryClient.invalidateQueries();
   };
